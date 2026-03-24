@@ -514,4 +514,4 @@ window.getCurrentUser = getCurrentUser;
 window.setCurrentUser = setCurrentUser;
 window.isLoggedIn = isLoggedIn;
 window.renderHeader = renderHeader;
-window.updateCoinDisplay = updateCoinDisplay;
+window.updateCoinDisplay = updateCoinDisplay; 

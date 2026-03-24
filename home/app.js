@@ -303,13 +303,23 @@ async function register() {
     return;
   }
 
+  // 🔥 ここ追加（6文字チェック）
+  if (newPass.length < 6) {
+    if (regMsg) regMsg.textContent = "パスワードは6文字以上にしてください";
+    return;
+  }
+
   if (newId.includes("@")) {
     if (regMsg) regMsg.textContent = "IDに @ は使えません";
     return;
   }
 
   try {
-    const cred = await createUserWithEmailAndPassword(auth, toFirebaseEmail(newId), newPass);
+    const cred = await createUserWithEmailAndPassword(
+      auth,
+      toFirebaseEmail(newId),
+      newPass
+    );
 
     setCurrentUser(newId);
     setCurrentUid(cred.user.uid);
@@ -329,26 +339,21 @@ async function register() {
     cacheUserData(newId, initData);
 
     if (regMsg) regMsg.textContent = `登録しました：${newId}`;
+
   } catch (e) {
     console.error("register error:", e);
 
     let text = "登録に失敗しました";
 
     switch (e.code) {
-      case "auth/configuration-not-found":
-        text = "FirebaseのEmail/Password認証が未設定です。Firebase Consoleで有効化してください。";
-        break;
       case "auth/email-already-in-use":
         text = "このIDはすでに使われています";
         break;
       case "auth/weak-password":
-        text = "パスワードが弱すぎます";
+        text = "パスワードが弱すぎます（6文字以上必要）";
         break;
       case "auth/invalid-email":
         text = "IDの形式が不正です";
-        break;
-      case "auth/network-request-failed":
-        text = "通信エラーです";
         break;
       default:
         text = `登録失敗: ${e.code || "unknown"}`;
@@ -358,7 +363,6 @@ async function register() {
     if (regMsg) regMsg.textContent = text;
   }
 }
-
 async function logout() {
   try {
     await signOut(auth);

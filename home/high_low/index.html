@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HIGH & LOW</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body onload="renderHeader()">
+
+  <div class="game-container highlow-page">
+
+    <h1 class="game-title">HIGH & LOW</h1>
+
+    <!-- 説明画面 -->
+    <div id="introScreen" class="panel">
+      <p class="intro-text">
+        HIGH & LOWは、最初に出た数字が<br>
+        次に出る数字より高いか低いかを予想するゲームです！<br><br>
+
+        高いと思ったらHIGH、低いと思ったらLOWを押してGO！<br>
+        同じ数字だと思ったら何も押さずにGOを押そう！<br><br>
+
+        予想が当たれば2倍！外れたら0倍！<br>
+        同じ数字を当てることができたら5倍になります！<br><br>
+
+        ～大きさ順～<br>
+        2 3 4 5 6 7 8 9 10 J Q K A
+      </p>
+
+      <div class="intro-actions">
+        <button id="introOk" class="ok-btn" type="button">OK</button>
+        <button class="back-btn" type="button" onclick="location.href='../dashboard.html'">
+          戻る
+        </button>
+      </div>
+    </div>
+
+    <!-- BET画面 -->
+    <div id="betScreen" class="panel" style="display:none;">
+      <h2 class="bet-title">BET枚数</h2>
+
+      <div class="bet-row">
+        <input type="number" id="betAmount" min="10" step="10" placeholder="BET枚数(10単位)">
+
+        <button id="allBetBtn" class="allbet-btn" type="button">ALL BET</button>
+
+        <button id="startBtn" class="start-btn" type="button">START</button>
+
+        <button class="back-btn" type="button" onclick="location.href='../dashboard.html'">
+          戻る
+        </button>
+      </div>
+    </div>
+
+    <!-- プレイ画面 -->
+    <div id="playScreen" class="panel" style="display:none;">
+      <div class="cards">
+        <div id="card1" class="card">?</div>
+        <div id="card2" class="card card-back">?</div>
+      </div>
+
+      <div id="actionArea">
+        <div class="choice-buttons">
+          <button id="highBtn" class="high-btn" type="button">HIGH</button>
+          <button id="lowBtn" class="low-btn" type="button">LOW</button>
+        </div>
+
+        <button id="goBtn" class="go-btn" type="button">GO</button>
+      </div>
+
+      <p id="result" class="result-text"></p>
+
+      <div id="afterArea" class="after-area" style="display:none;">
+        <button id="againBtn" class="ok-btn" type="button">もう一回</button>
+        <button id="backBtn" class="back-btn" type="button">戻る</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../app.js"></script>
+  <script src="script.js"></script>
+  <script src="../../hedder/hedder.js"></script>
+</body>
+</html>

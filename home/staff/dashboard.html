@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ホーム</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body onload="initDashboard()">
+
+<div class="bonus-container">
+
+    <h1 class="bonus-title">ログインボーナス</h1>
+
+    <div id="bonusGrid" class="bonus-grid"></div>
+
+    <button id="claimBtn" onclick="claimBonus()">受け取る</button>
+
+    <p id="status"></p>
+    
+</div>
+
+<div class="bonus-container">
+
+    <h1 class="bonus-title">ゲーム</h1>
+
+    <div>
+        <button class="highlow-btn" onclick="location.href='high_low/index.html'">
+        HIGH & LOW ゲーム
+        </button>
+    </div>
+    <div>
+        <button class="highlow-btn" onclick="location.href='../index.html'">
+        ブラックジャック
+        </button>
+    </div>
+
+</div>
+
+<div class="bonus-container">
+
+    <h1 class="bonus-title">ショップ</h1>
+
+    <div>
+        <button onclick="location.href='shop/index.html?tab=ticket'">
+        おかわり券 交換所
+        </button>
+    </div>
+    <div>
+        <button onclick="location.href='shop/index.html?tab=power'">
+        その他 交換所
+        </button>
+    </div>
+
+</div>
+
+<div class="bonus-container">
+
+    <h1 class="bonus-title">チャット</h1>
+
+    <div>
+        <button onclick="location.href='../index.html'">
+        ダイレクトメッセージ
+        </button>
+    </div>
+    <div>
+        <button onclick="location.href='../index.html'">
+        グループチャット
+        </button>
+    </div>
+
+</div>
+
+<div class="bonus-container">
+
+    <h1 class="bonus-title">システム</h1>
+
+    <div>
+        <button onclick="location.href='../index.html'">
+        今日のおかわり
+        </button>
+    </div>
+    <div>
+        <button class="highlow-btn" onclick="location.href='../index.html'">
+        遅刻･欠席連絡
+        </button>
+    </div>
+
+</div>
+
+<div class="bonus-container">
+
+    <h1 class="bonus-title">設定</h1>
+
+    <div>
+        <button onclick="location.href='../index.html'">
+        名前とアイコン
+        </button>
+    </div>
+    <div>
+        <button class="highlow-btn" onclick="location.href='../index.html'">
+        IDとパスワード
+        </button>
+    </div>
+
+</div>
+
+<div class="bonus-container">
+
+    <button class="logout" onclick="logout()">ログアウト</button>
+
+</div>
+
+<script src="app.js"></script>
+<script src="../../hedder/hedder.js"></script>
+</body>
+</html>

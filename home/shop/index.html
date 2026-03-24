@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHOP</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body onload="renderHeader()">
+
+  <h1 class="shop-title">SHOP</h1>
+
+  <div class="shop-panel">
+    <div class="shop-tabs">
+      <button class="tab-btn" data-tab="ticket" type="button">おかわり</button>
+      <button class="tab-btn" data-tab="power" type="button">その他</button>
+    </div>
+    <div id="shopContent" class="shop-content"></div>
+  </div>
+
+  <div class="bottom-row">
+    <button class="back-btn" type="button" onclick="location.href='../dashboard.html'">戻る</button>
+  </div>
+
+  <script src="../app.js"></script>
+  <script src="shop.js"></script>
+  <script src="../../hedder/hedder.js"></script>
+</body>
+</html>

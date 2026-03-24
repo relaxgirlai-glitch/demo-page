@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>職員ログイン</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="login-page">
+
+  <div class="login-card">
+
+    <h2>職員ログイン</h2>
+
+    <input
+      type="text"
+      id="id"
+      placeholder="ID">
+
+    <input
+      type="password"
+      id="pass"
+      placeholder="パスワード">
+
+    <button
+      class="btn btn-blue"
+      onclick="login()">
+      ログイン
+    </button>
+
+    <p id="message"></p>
+
+  </div>
+
+  <!-- ↓ 枠の外 -->
+    <p class="staff-login-link" id="bottomLinkText">
+    生徒ログインは
+    <a href="../index.html">コチラ</a>
+     から
+    </p>
+
+ <script src="app.js"></script>
+
+</body>
+
+</html>

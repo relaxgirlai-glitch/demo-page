@@ -1,0 +1,173 @@
+.highlow-page{
+  width: min(760px, 92vw);
+  margin: 0 auto;
+}
+
+.game-title{
+  margin: 0 0 18px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.panel{
+  width: 100%;
+  margin: 0 auto;
+}
+
+.intro-text{
+  line-height: 1.8;
+}
+
+.intro-actions{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.bet-title{
+  margin: 0 0 16px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.bet-row{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#betAmount{
+  width: 180px;
+  text-align: center;
+}
+
+.allbet-btn{
+  background: #9b59b6;
+  color: #fff;
+}
+
+.allbet-btn:hover{
+  background: #8e44ad;
+}
+
+.start-btn{
+  background: var(--color-green);
+  color: #fff;
+}
+
+.start-btn:hover{
+  background: var(--color-green-hover);
+}
+
+.cards{
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.card{
+  width: 140px;
+  height: 190px;
+  border-radius: 14px;
+  background: #fff;
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+}
+
+.card-back{
+  color: #fff;
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #2b2b2b 0 12px,
+      #3a3a3a 12px 24px
+    );
+  border: 3px solid rgba(255,255,255,0.22);
+}
+
+.choice-buttons{
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.high-btn{
+  background: var(--color-red);
+  color: #fff;
+}
+
+.high-btn:hover{
+  background: var(--color-red-hover);
+}
+
+.low-btn{
+  background: var(--color-blue);
+  color: #fff;
+}
+
+.low-btn:hover{
+  background: var(--color-blue-hover);
+}
+
+.go-btn{
+  background: var(--color-green);
+  color: #fff;
+}
+
+.go-btn:hover{
+  background: var(--color-green-hover);
+}
+
+.selected{
+  outline: 3px solid #fff;
+  transform: scale(1.06);
+}
+
+.result-text{
+  min-height: 1.6em;
+  margin-top: 16px;
+  color: var(--color-gold);
+}
+
+.after-area{
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+@media (max-width: 480px){
+  .highlow-page{
+    width: min(92vw, 420px);
+  }
+
+  .game-title{
+    font-size: 24px;
+    font-weight: 700;
+  }
+
+  .bet-title{
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .card{
+    width: 120px;
+    height: 165px;
+    font-size: 48px;
+    font-weight: 700;
+  }
+}

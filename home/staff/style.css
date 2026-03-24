@@ -1,0 +1,536 @@
+:root{
+  --header-h: 70px;
+
+  --color-bg-1: #1f1f1f;
+  --color-bg-2: #2c3e50;
+
+  --color-text: #ffffff;
+  --color-card: #2b2b2b;
+
+  --color-blue: #3498db;
+  --color-blue-hover: #2980b9;
+
+  --color-orange: #e67e22;
+  --color-orange-hover: #d35400;
+
+  --color-green: #2ecc71;
+  --color-green-hover: #27ae60;
+
+  --color-red: #e74c3c;
+  --color-red-hover: #c0392b;
+
+  --color-purple: #9b59b6;
+  --color-purple-hover: #8e44ad;
+
+  --color-gold: #f1c40f;
+}
+
+/* =========================
+   base
+========================= */
+
+*{
+  box-sizing: border-box;
+}
+
+html,
+body{
+  margin: 0;
+  min-height: 100vh;
+}
+
+body{
+  padding-top: calc(var(--header-h) + 24px);
+  background: linear-gradient(135deg, var(--color-bg-1), var(--color-bg-2));
+  font-family: sans-serif;
+  color: var(--color-text);
+  text-align: center;
+}
+
+/* =========================
+   default button
+========================= */
+
+button{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1.4;
+  transition: background-color 0.2s, opacity 0.2s, transform 0.2s;
+  text-decoration: none;
+  background: var(--color-orange);
+  color: #fff;
+}
+
+button:hover{
+  background: var(--color-orange-hover);
+}
+
+button:disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================
+   buttons
+========================= */
+
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1.4;
+  transition: background-color 0.2s, opacity 0.2s, transform 0.2s;
+  text-decoration: none;
+}
+
+.btn.btn-blue{
+  background: var(--color-orange);
+  color: #fff;
+}
+
+.btn.btn-blue:hover{
+  background: var(--color-orange-hover);
+}
+
+.btn.btn-staff{
+  background: var(--color-orange);
+  color: #fff;
+}
+
+.btn.btn-staff:hover{
+  background: var(--color-orange-hover);
+}
+
+.btn.btn-ok{
+  background: var(--color-green);
+  color: #fff;
+}
+
+.btn.btn-ok:hover{
+  background: var(--color-green-hover);
+}
+
+.btn.btn-back{
+  background: var(--color-purple);
+  color: #fff;
+}
+
+.btn.btn-back:hover{
+  background: var(--color-purple-hover);
+}
+
+.btn:disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =========================
+   legacy button classes
+========================= */
+
+.highlow-btn{
+  background: var(--color-purple);
+  color: #fff;
+}
+
+.highlow-btn:hover{
+  background: var(--color-purple-hover);
+}
+
+.logout{
+  background: var(--color-red);
+  color: #fff;
+}
+
+.logout:hover{
+  background: var(--color-red-hover);
+}
+
+.back-btn{
+  background: var(--color-red);
+  color: #fff;
+}
+
+.back-btn:hover{
+  background: var(--color-red-hover);
+}
+
+.ok-btn{
+  background: var(--color-green);
+  color: #fff;
+}
+
+.ok-btn:hover{
+  background: var(--color-green-hover);
+}
+
+.staff-accent-btn{
+  background: var(--color-orange);
+  color: #fff;
+}
+
+.staff-accent-btn:hover{
+  background: var(--color-orange-hover);
+}
+
+/* =========================
+   fixed button positions
+========================= */
+
+.staff-link{
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+}
+
+/* =========================
+   login
+========================= */
+
+body.login-page{
+  padding-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card{
+  width: 320px;
+  margin: 0;
+  padding: 30px;
+  border-radius: 15px;
+  background: var(--color-card);
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.login-card h2{
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.login-card input{
+  width: 90%;
+  padding: 10px;
+  margin: 8px 0;
+  border: none;
+  border-radius: 8px;
+}
+
+.login-card p{
+  min-height: 24px;
+  margin-bottom: 0;
+}
+
+/* =========================
+   inputs
+========================= */
+
+input{
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+/* =========================
+   coin bar
+========================= */
+
+.coin-bar{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 30px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  color: var(--color-gold);
+  text-align: left;
+  font-weight: 900;
+  font-size: 28px;
+  z-index: 9999;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+}
+
+.coin-line{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* =========================
+   layout
+========================= */
+
+.game-container{
+  width: min(900px, 92vw);
+  margin: 0 auto;
+}
+
+/* =========================
+   dashboard / bonus
+========================= */
+
+.bonus-container{
+  width: min(900px, 92vw);
+  margin: 0 auto 28px;
+  padding: 24px 20px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.bonus-title{
+  margin: 0 0 18px;
+  font-size: 32px;
+  font-weight: 900;
+}
+
+.bonus-grid{
+  margin-bottom: 16px;
+}
+
+#bonusGrid{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bonus-day-row,
+.bonus-reward-row{
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.bonus-day-label{
+  width: 70px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.bonus-day{
+  width: 70px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #444;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.current{
+  background: var(--color-orange);
+}
+
+.claimed{
+  background: var(--color-green);
+}
+
+.current-day{
+  color: var(--color-orange);
+}
+
+.claimed-day{
+  color: var(--color-green);
+}
+
+#status{
+  min-height: 1.4em;
+  margin-top: 12px;
+  font-weight: 900;
+  color: var(--color-gold);
+}
+
+/* =========================
+   responsive
+========================= */
+
+@media (max-width: 780px){
+  .bonus-title{
+    font-size: 26px;
+  }
+
+  .bonus-container{
+    padding: 20px 14px;
+  }
+}
+
+@media (max-width: 480px){
+  button,
+  .btn{
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .staff-link{
+    width: auto;
+    max-width: none;
+  }
+
+  .coin-bar{
+    font-size: 22px;
+    padding: 0 16px;
+  }
+}
+
+/* =========================
+   staff login link
+========================= */
+
+body.login-page{
+  flex-direction: column;
+}
+
+.staff-login-link{
+  margin-top: 16px;
+  color: var(--color-text);
+}
+
+.staff-login-link a,
+.staff-login-link a:visited,
+.staff-login-link a:active{
+  color: var(--color-blue);
+  text-decoration: underline;
+}
+
+.staff-login-link a:hover{
+  color: var(--color-blue-hover);
+}
+
+.notice-box{
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: min(320px, 90vw);
+  background: rgba(30, 30, 30, 0.95);
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.18);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+  overflow: hidden;
+  z-index: 9999;
+
+  opacity: 0;
+  transform: translateY(24px);
+  pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.notice-box.show{
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.notice-text{
+  padding: 16px 16px 14px;
+  line-height: 1.6;
+  font-weight: 700;
+  text-align: left;
+}
+
+.notice-bar-wrap{
+  width: 100%;
+  height: 8px;
+  background: rgba(255,255,255,0.12);
+}
+
+.notice-bar{
+  width: 100%;
+  height: 100%;
+  background: var(--color-gold);
+}
+
+.coin-add-row{
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  width: min(760px, 92vw);
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  z-index: 1000;
+}
+
+.coin-add-btn{
+  background: var(--color-gold);
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.coin-add-btn:hover{
+  background: #bb980c;
+}
+
+.notice-actions{
+  margin-top: 6px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.notice-undo-btn{
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.coin-bar{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 2px;
+  height: auto;
+  min-height: var(--header-h);
+  padding: 10px 30px;
+}
+
+.coin-line{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.coin-milestone{
+  display: block;
+  font-size: 14px;
+  line-height: 1.25;
+  color: var(--color-gold);
+  white-space: normal;
+  text-align: left;
+}

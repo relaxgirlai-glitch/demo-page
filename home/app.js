@@ -276,22 +276,43 @@ async function login() {
 
     await ensureCloudUser();
     window.location.href = "dashboard.html";
+
   } catch (e) {
-    console.error(e);
-    if (msg) msg.textContent = "IDまたはパスワードが違います";
+    console.error("login error:", e);
+
+    let text = "ログインに失敗しました";
+
+    if (e && e.code) {
+      switch (e.code) {
+        case "auth/configuration-not-found":
+          text = "Firebaseの認証設定が未完了です。管理者が Email/Password を有効化してください。";
+          break;
+        case "auth/invalid-credential":
+          text = "IDまたはパスワードが違います";
+          break;
+        case "auth/user-not-found":
+          text = "このIDは登録されていません";
+          break;
+        case "auth/wrong-password":
+          text = "パスワードが違います";
+          break;
+        case "auth/invalid-email":
+          text = "IDの形式が不正です";
+          break;
+        case "auth/network-request-failed":
+          text = "通信エラーです。ネット接続を確認してください";
+          break;
+        case "auth/too-many-requests":
+          text = "試行回数が多すぎます。少し待ってから再試行してください";
+          break;
+        default:
+          text = `ログイン失敗: ${e.code}`;
+      }
+    }
+
+    if (msg) msg.textContent = text;
   }
 }
-
-async function register() {
-  const code = document.getElementById("adminCode")?.value ?? "";
-  const newId = (document.getElementById("newId")?.value ?? "").trim();
-  const newPass = document.getElementById("newPass")?.value ?? "";
-  const regMsg = document.getElementById("regMsg");
-
-  if (code !== ADMIN_CODE) {
-    if (regMsg) regMsg.textContent = "管理者コードが違います";
-    return;
-  }
 
   if (!newId || !newPass) {
     if (regMsg) regMsg.textContent = "IDとパスワードを入力してね";

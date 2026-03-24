@@ -7,13 +7,11 @@ import {
   updateDoc,
   serverTimestamp,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged
 } from "./firebase.js";
 
 const BONUS_LIST = [50, 100, 150, 250, 350, 500, 750];
-const ADMIN_CODE = "sushi-1234";
 
 function todayKey() {
   const d = new Date();
@@ -263,9 +261,6 @@ async function login() {
     let text = "ログインに失敗しました";
 
     switch (e.code) {
-      case "auth/configuration-not-found":
-        text = "FirebaseのEmail/Password認証が未設定です。Firebase Consoleで有効化してください。";
-        break;
       case "auth/invalid-credential":
         text = "IDまたはパスワードが違います";
         break;
@@ -284,78 +279,6 @@ async function login() {
     }
 
     if (msg) msg.textContent = text;
-  }
-}
-
-async function register() {
-  const code = document.getElementById("adminCode")?.value ?? "";
-  const newId = (document.getElementById("newId")?.value ?? "").trim();
-  const newPass = document.getElementById("newPass")?.value ?? "";
-  const regMsg = document.getElementById("regMsg");
-
-  if (code !== ADMIN_CODE) {
-    if (regMsg) regMsg.textContent = "管理者コードが違います";
-    return;
-  }
-
-  if (!newId || !newPass) {
-    if (regMsg) regMsg.textContent = "IDとパスワードを入力してね";
-    return;
-  }
-
-  if (newId.includes("@")) {
-    if (regMsg) regMsg.textContent = "IDに @ は使えません";
-    return;
-  }
-
-  try {
-    const cred = await createUserWithEmailAndPassword(auth, toFirebaseEmail(newId), newPass);
-
-    setCurrentUser(newId);
-    setCurrentUid(cred.user.uid);
-    localStorage.setItem("loggedIn", "true");
-
-    const initData = normalizeUserData({
-      loginId: newId,
-      role: "student"
-    });
-
-    await setDoc(doc(db, "users", cred.user.uid), {
-      ...initData,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
-    });
-
-    cacheUserData(newId, initData);
-
-    if (regMsg) regMsg.textContent = `登録しました：${newId}`;
-  } catch (e) {
-    console.error("register error:", e);
-
-    let text = "登録に失敗しました";
-
-    switch (e.code) {
-      case "auth/configuration-not-found":
-        text = "FirebaseのEmail/Password認証が未設定です。Firebase Consoleで有効化してください。";
-        break;
-      case "auth/email-already-in-use":
-        text = "このIDはすでに使われています";
-        break;
-      case "auth/weak-password":
-        text = "パスワードが弱すぎます";
-        break;
-      case "auth/invalid-email":
-        text = "IDの形式が不正です";
-        break;
-      case "auth/network-request-failed":
-        text = "通信エラーです";
-        break;
-      default:
-        text = `登録失敗: ${e.code || "unknown"}`;
-        break;
-    }
-
-    if (regMsg) regMsg.textContent = text;
   }
 }
 
@@ -495,17 +418,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-  const openBtn = document.getElementById("openRegister");
-  if (openBtn) {
-    openBtn.addEventListener("click", () => {
-      const box = document.getElementById("registerBox");
-      if (!box) return;
-      box.style.display = box.style.display === "none" ? "block" : "none";
-    });
-  }
-});
-
 window.addEventListener("pageshow", () => {
   const staffLinkText = document.getElementById("staffLinkText");
   const staffBackMessage = sessionStorage.getItem("staffBackMessage");
@@ -517,7 +429,6 @@ window.addEventListener("pageshow", () => {
 });
 
 window.login = login;
-window.register = register;
 window.logout = logout;
 window.initDashboard = initDashboard;
 window.claimBonus = claimBonus;

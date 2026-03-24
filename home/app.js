@@ -1,9 +1,22 @@
-// app.js（完成版）
+import {
+  auth,
+  db,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "./firebase.js";
+
 // =========================
 // 設定
 // =========================
 const BONUS_LIST = [50, 100, 150, 250, 350, 500, 750];
-const ADMIN_CODE = "sushi-1234"; // ←自分用に変更！
+const ADMIN_CODE = "sushi-1234";
 
 // =========================
 // 共通ユーティリティ
@@ -20,18 +33,21 @@ function createDefaultUserData() {
     lastClaim: "",
     playDate: "",
     playCount: 0,
+    role: "student",
+    loginId: ""
   };
 }
 
-// =========================
-// ユーザー管理
-// =========================
-function loadUsers() {
-  return JSON.parse(localStorage.getItem("users") || "{}");
+function normalizeUserData(data = {}) {
+  return {
+    ...createDefaultUserData(),
+    ...data
+  };
 }
 
-function saveUsers(users) {
-  localStorage.setItem("users", JSON.stringify(users));
+function toFirebaseEmail(id) {
+  const v = String(id || "").trim().toLowerCase();
+  return `${v}@demo.local`;
 }
 
 function getCurrentUser() {
@@ -42,64 +58,90 @@ function setCurrentUser(id) {
   localStorage.setItem("currentUser", id);
 }
 
-function isLoggedIn() {
-  return localStorage.getItem("loggedIn") === "true" && !!getCurrentUser();
+function getCurrentUid() {
+  return localStorage.getItem("currentUid") || "";
 }
 
-// user_<id> の初期データ
-function ensureUserData(userId) {
-  if (!userId) return;
+function setCurrentUid(uid) {
+  localStorage.setItem("currentUid", uid);
+}
 
-  const key = `user_${userId}`;
-  const raw = localStorage.getItem(key);
+function isLoggedIn() {
+  return localStorage.getItem("loggedIn") === "true" && !!getCurrentUser() && !!getCurrentUid();
+}
 
-  if (!raw) {
-    localStorage.setItem(key, JSON.stringify(createDefaultUserData()));
-    return;
-  }
-
-  let data;
-  try {
-    data = JSON.parse(raw);
-  } catch {
-    data = {};
-  }
-
-  localStorage.setItem(
-    key,
-    JSON.stringify({
-      ...createDefaultUserData(),
-      ...data,
-    })
-  );
+function cacheUserData(loginId, data) {
+  localStorage.setItem(`user_${loginId}`, JSON.stringify(normalizeUserData(data)));
 }
 
 function getUserData() {
   const user = getCurrentUser();
   if (!user) return createDefaultUserData();
 
-  ensureUserData(user);
-
   try {
-    return {
-      ...createDefaultUserData(),
-      ...JSON.parse(localStorage.getItem(`user_${user}`) || "{}"),
-    };
+    return normalizeUserData(JSON.parse(localStorage.getItem(`user_${user}`) || "{}"));
   } catch {
     return createDefaultUserData();
   }
 }
 
-function setUserData(data) {
-  const user = getCurrentUser();
-  if (!user) return;
+let saveTimer = null;
 
-  const merged = {
-    ...createDefaultUserData(),
+async function saveUserDataNow(data) {
+  const uid = getCurrentUid();
+  const loginId = getCurrentUser();
+  if (!uid || !loginId) return;
+
+  const merged = normalizeUserData({
+    ...getUserData(),
     ...data,
-  };
+    loginId
+  });
 
-  localStorage.setItem(`user_${user}`, JSON.stringify(merged));
+  cacheUserData(loginId, merged);
+
+  await setDoc(
+    doc(db, "users", uid),
+    {
+      ...merged,
+      updatedAt: serverTimestamp()
+    },
+    { merge: true }
+  );
+}
+
+function scheduleSaveUserData(data) {
+  const uid = getCurrentUid();
+  const loginId = getCurrentUser();
+  if (!uid || !loginId) return;
+
+  const merged = normalizeUserData({
+    ...getUserData(),
+    ...data,
+    loginId
+  });
+
+  cacheUserData(loginId, merged);
+
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      await setDoc(
+        doc(db, "users", uid),
+        {
+          ...merged,
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+    } catch (e) {
+      console.error("保存失敗:", e);
+    }
+  }, 150);
+}
+
+function setUserData(data) {
+  scheduleSaveUserData(data);
 }
 
 // =========================
@@ -113,10 +155,11 @@ function setCoins(v) {
   const d = getUserData();
   d.coins = Number(v) || 0;
   setUserData(d);
+  updateCoinDisplay();
 }
 
 // =========================
-// 1日プレイ回数（ユーザー別）
+// 1日プレイ回数
 // =========================
 function getTodayPlays() {
   const d = getUserData();
@@ -145,8 +188,7 @@ function incTodayPlays() {
 }
 
 // =========================
-// ヘッダー（コイン表示）
-// どのページでも renderHeader(); だけでOK
+// ヘッダー
 // =========================
 function renderHeader() {
   if (document.querySelector(".coin-bar")) return;
@@ -165,20 +207,52 @@ function updateCoinDisplay() {
 }
 
 // =========================
-// 認証（ログイン / 登録 / ログアウト）
+// Firebase同期
 // =========================
+async function ensureCloudUser() {
+  const uid = getCurrentUid();
+  const loginId = getCurrentUser();
+  if (!uid || !loginId) return;
 
-// 初期ユーザー test/test（いらなければ消してOK）
-(function initDefaultUser() {
-  const users = loadUsers();
-  if (!users["test"]) {
-    users["test"] = { pass: "test" };
-    saveUsers(users);
-    ensureUserData("test");
+  const ref = doc(db, "users", uid);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    const data = normalizeUserData({
+      loginId,
+      role: "student"
+    });
+    await setDoc(ref, {
+      ...data,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    cacheUserData(loginId, data);
+    return;
   }
-})();
 
-function login() {
+  const data = normalizeUserData(snap.data());
+  cacheUserData(loginId, data);
+}
+
+async function refreshCloudUser() {
+  const uid = getCurrentUid();
+  const loginId = getCurrentUser();
+  if (!uid || !loginId) return;
+
+  const snap = await getDoc(doc(db, "users", uid));
+  if (!snap.exists()) {
+    await ensureCloudUser();
+    return;
+  }
+
+  cacheUserData(loginId, snap.data());
+}
+
+// =========================
+// 認証
+// =========================
+async function login() {
   const idEl = document.getElementById("id");
   const passEl = document.getElementById("pass");
   const msg = document.getElementById("message");
@@ -188,18 +262,27 @@ function login() {
   const id = idEl.value.trim();
   const pass = passEl.value;
 
-  const users = loadUsers();
-  if (users[id] && users[id].pass === pass) {
+  if (!id || !pass) {
+    if (msg) msg.textContent = "IDとパスワードを入力してね";
+    return;
+  }
+
+  try {
+    const cred = await signInWithEmailAndPassword(auth, toFirebaseEmail(id), pass);
+
     localStorage.setItem("loggedIn", "true");
     setCurrentUser(id);
-    ensureUserData(id);
+    setCurrentUid(cred.user.uid);
+
+    await ensureCloudUser();
     window.location.href = "dashboard.html";
-  } else {
+  } catch (e) {
+    console.error(e);
     if (msg) msg.textContent = "IDまたはパスワードが違います";
   }
 }
 
-function register() {
+async function register() {
   const code = document.getElementById("adminCode")?.value ?? "";
   const newId = (document.getElementById("newId")?.value ?? "").trim();
   const newPass = document.getElementById("newPass")?.value ?? "";
@@ -215,35 +298,61 @@ function register() {
     return;
   }
 
-  const users = loadUsers();
-  if (users[newId]) {
-    if (regMsg) regMsg.textContent = "そのIDはもう使われています";
+  if (newId.includes("@")) {
+    if (regMsg) regMsg.textContent = "IDに @ は使えません";
     return;
   }
 
-  users[newId] = { pass: newPass };
-  saveUsers(users);
-  ensureUserData(newId);
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, toFirebaseEmail(newId), newPass);
 
-  if (regMsg) regMsg.textContent = `登録しました：${newId}`;
+    setCurrentUser(newId);
+    setCurrentUid(cred.user.uid);
+    localStorage.setItem("loggedIn", "true");
+
+    const initData = normalizeUserData({
+      loginId: newId,
+      role: "student"
+    });
+
+    await setDoc(doc(db, "users", cred.user.uid), {
+      ...initData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+
+    cacheUserData(newId, initData);
+
+    if (regMsg) regMsg.textContent = `登録しました：${newId}`;
+  } catch (e) {
+    console.error(e);
+    if (regMsg) regMsg.textContent = "登録に失敗しました（同じIDの可能性あり）";
+  }
 }
 
-function logout() {
+async function logout() {
+  try {
+    await signOut(auth);
+  } catch (e) {
+    console.error(e);
+  }
+
   localStorage.removeItem("loggedIn");
   localStorage.removeItem("currentUser");
+  localStorage.removeItem("currentUid");
   window.location.href = "index.html";
 }
 
 // =========================
-// ダッシュボード：ログインボーナス（ユーザー別）
+// ダッシュボード
 // =========================
-function initDashboard() {
-  if (!isLoggedIn()) {
+async function initDashboard() {
+  if (!auth.currentUser && !isLoggedIn()) {
     window.location.href = "index.html";
     return;
   }
 
-  ensureUserData(getCurrentUser());
+  await refreshCloudUser();
   renderHeader();
   renderBonus();
 }
@@ -303,11 +412,10 @@ function renderBonus() {
   }
 }
 
-function claimBonus() {
+async function claimBonus() {
   if (!isLoggedIn()) return;
 
-  const user = getCurrentUser();
-  ensureUserData(user);
+  await refreshCloudUser();
 
   const d = getUserData();
   const today = todayKey();
@@ -322,7 +430,7 @@ function claimBonus() {
   if (d.step >= BONUS_LIST.length) d.step = 0;
   d.lastClaim = today;
 
-  setUserData(d);
+  await saveUserDataNow(d);
 
   const status = document.getElementById("status");
   if (status) status.textContent = `${reward}コイン獲得！`;
@@ -338,7 +446,34 @@ function claimBonus() {
 }
 
 // =========================
-// DOM初期化（ログインページ用UI）
+// 自動ログイン同期
+// =========================
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    if (!getCurrentUid()) setCurrentUid(user.uid);
+    localStorage.setItem("loggedIn", "true");
+
+    if (location.pathname.endsWith("/home/index.html") || location.pathname.endsWith("/home/")) {
+      const id = getCurrentUser();
+      if (id) {
+        await refreshCloudUser();
+      }
+    }
+  } else {
+    if (
+      location.pathname.includes("/home/dashboard.html") ||
+      location.pathname.includes("/home/high_low/") ||
+      location.pathname.includes("/home/shop/")
+    ) {
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("currentUid");
+    }
+  }
+});
+
+// =========================
+// 既存UI用
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
   const openBtn = document.getElementById("openRegister");
@@ -351,7 +486,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-
 window.addEventListener("pageshow", () => {
   const staffLinkText = document.getElementById("staffLinkText");
   const staffBackMessage = sessionStorage.getItem("staffBackMessage");
@@ -361,3 +495,23 @@ window.addEventListener("pageshow", () => {
     sessionStorage.removeItem("staffBackMessage");
   }
 });
+
+// =========================
+// グローバル公開
+// =========================
+window.login = login;
+window.register = register;
+window.logout = logout;
+window.initDashboard = initDashboard;
+window.claimBonus = claimBonus;
+window.getCoins = getCoins;
+window.setCoins = setCoins;
+window.getUserData = getUserData;
+window.setUserData = setUserData;
+window.getTodayPlays = getTodayPlays;
+window.incTodayPlays = incTodayPlays;
+window.getCurrentUser = getCurrentUser;
+window.setCurrentUser = setCurrentUser;
+window.isLoggedIn = isLoggedIn;
+window.renderHeader = renderHeader;
+window.updateCoinDisplay = updateCoinDisplay;

@@ -282,34 +282,30 @@ async function login() {
 
     let text = "ログインに失敗しました";
 
-    if (e && e.code) {
-      switch (e.code) {
-        case "auth/configuration-not-found":
-          text = "Firebaseの認証設定が未完了です。管理者が Email/Password を有効化してください。";
-          break;
-        case "auth/invalid-credential":
-          text = "IDまたはパスワードが違います";
-          break;
-        case "auth/user-not-found":
-          text = "このIDは登録されていません";
-          break;
-        case "auth/wrong-password":
-          text = "パスワードが違います";
-          break;
-        case "auth/invalid-email":
-          text = "IDの形式が不正です";
-          break;
-        case "auth/network-request-failed":
-          text = "通信エラーです。ネット接続を確認してください";
-          break;
-        case "auth/too-many-requests":
-          text = "試行回数が多すぎます。少し待ってから再試行してください";
-          break;
-        default:
-          text = `ログイン失敗: ${e.code}`;
-      }
+    switch (e.code) {
+      case "auth/configuration-not-found":
+        text = "FirebaseのEmail/Password認証が未設定です。Firebase Consoleで有効化してください。";
+        break;
+      case "auth/invalid-credential":
+        text = "IDまたはパスワードが違います";
+        break;
+      case "auth/user-not-found":
+        text = "このIDは登録されていません";
+        break;
+      case "auth/wrong-password":
+        text = "パスワードが違います";
+        break;
+      case "auth/network-request-failed":
+        text = "通信エラーです";
+        break;
+      default:
+        text = `ログイン失敗: ${e.code || "unknown"}`;
+        break;
     }
 
+    if (msg) msg.textContent = text;
+  }
+}
     if (msg) msg.textContent = text;
   }
 }

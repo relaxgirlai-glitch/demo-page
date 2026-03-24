@@ -12,15 +12,9 @@ import {
   onAuthStateChanged
 } from "./firebase.js";
 
-// =========================
-// 設定
-// =========================
 const BONUS_LIST = [50, 100, 150, 250, 350, 500, 750];
 const ADMIN_CODE = "sushi-1234";
 
-// =========================
-// 共通ユーティリティ
-// =========================
 function todayKey() {
   const d = new Date();
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
@@ -144,9 +138,6 @@ function setUserData(data) {
   scheduleSaveUserData(data);
 }
 
-// =========================
-// コイン
-// =========================
 function getCoins() {
   return Number(getUserData().coins || 0);
 }
@@ -158,9 +149,6 @@ function setCoins(v) {
   updateCoinDisplay();
 }
 
-// =========================
-// 1日プレイ回数
-// =========================
 function getTodayPlays() {
   const d = getUserData();
 
@@ -187,9 +175,6 @@ function incTodayPlays() {
   setUserData(d);
 }
 
-// =========================
-// ヘッダー
-// =========================
 function renderHeader() {
   if (document.querySelector(".coin-bar")) return;
 
@@ -206,9 +191,6 @@ function updateCoinDisplay() {
   if (el) el.textContent = String(getCoins());
 }
 
-// =========================
-// Firebase同期
-// =========================
 async function ensureCloudUser() {
   const uid = getCurrentUid();
   const loginId = getCurrentUser();
@@ -222,11 +204,13 @@ async function ensureCloudUser() {
       loginId,
       role: "student"
     });
+
     await setDoc(ref, {
       ...data,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     });
+
     cacheUserData(loginId, data);
     return;
   }
@@ -249,9 +233,6 @@ async function refreshCloudUser() {
   cacheUserData(loginId, snap.data());
 }
 
-// =========================
-// 認証
-// =========================
 async function login() {
   const idEl = document.getElementById("id");
   const passEl = document.getElementById("pass");
@@ -277,8 +258,32 @@ async function login() {
     await ensureCloudUser();
     window.location.href = "dashboard.html";
   } catch (e) {
-    console.error(e);
-    if (msg) msg.textContent = "IDまたはパスワードが違います";
+    console.error("login error:", e);
+
+    let text = "ログインに失敗しました";
+
+    switch (e.code) {
+      case "auth/configuration-not-found":
+        text = "FirebaseのEmail/Password認証が未設定です。Firebase Consoleで有効化してください。";
+        break;
+      case "auth/invalid-credential":
+        text = "IDまたはパスワードが違います";
+        break;
+      case "auth/user-not-found":
+        text = "このIDは登録されていません";
+        break;
+      case "auth/wrong-password":
+        text = "パスワードが違います";
+        break;
+      case "auth/network-request-failed":
+        text = "通信エラーです";
+        break;
+      default:
+        text = `ログイン失敗: ${e.code || "unknown"}`;
+        break;
+    }
+
+    if (msg) msg.textContent = text;
   }
 }
 
@@ -325,8 +330,32 @@ async function register() {
 
     if (regMsg) regMsg.textContent = `登録しました：${newId}`;
   } catch (e) {
-    console.error(e);
-    if (regMsg) regMsg.textContent = "登録に失敗しました（同じIDの可能性あり）";
+    console.error("register error:", e);
+
+    let text = "登録に失敗しました";
+
+    switch (e.code) {
+      case "auth/configuration-not-found":
+        text = "FirebaseのEmail/Password認証が未設定です。Firebase Consoleで有効化してください。";
+        break;
+      case "auth/email-already-in-use":
+        text = "このIDはすでに使われています";
+        break;
+      case "auth/weak-password":
+        text = "パスワードが弱すぎます";
+        break;
+      case "auth/invalid-email":
+        text = "IDの形式が不正です";
+        break;
+      case "auth/network-request-failed":
+        text = "通信エラーです";
+        break;
+      default:
+        text = `登録失敗: ${e.code || "unknown"}`;
+        break;
+    }
+
+    if (regMsg) regMsg.textContent = text;
   }
 }
 
@@ -343,9 +372,6 @@ async function logout() {
   window.location.href = "index.html";
 }
 
-// =========================
-// ダッシュボード
-// =========================
 async function initDashboard() {
   if (!auth.currentUser && !isLoggedIn()) {
     window.location.href = "index.html";
@@ -445,9 +471,6 @@ async function claimBonus() {
   renderBonus();
 }
 
-// =========================
-// 自動ログイン同期
-// =========================
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     if (!getCurrentUid()) setCurrentUid(user.uid);
@@ -472,9 +495,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// =========================
-// 既存UI用
-// =========================
 document.addEventListener("DOMContentLoaded", () => {
   const openBtn = document.getElementById("openRegister");
   if (openBtn) {
@@ -496,9 +516,6 @@ window.addEventListener("pageshow", () => {
   }
 });
 
-// =========================
-// グローバル公開
-// =========================
 window.login = login;
 window.register = register;
 window.logout = logout;

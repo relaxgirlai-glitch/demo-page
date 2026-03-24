@@ -10,7 +10,7 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged
-} from "./firebace.js";
+} from "./firebase.js";
 
 // =========================
 // 設定

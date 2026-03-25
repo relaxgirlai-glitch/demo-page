@@ -236,10 +236,20 @@ async function login() {
   const passEl = document.getElementById("pass");
   const msg = document.getElementById("message");
 
-  if (!idEl || !passEl) return;
+  console.log("login start");
+
+  if (msg) msg.textContent = "";
+
+  if (!idEl || !passEl) {
+    console.error("id or pass element not found");
+    if (msg) msg.textContent = "入力欄が見つかりません";
+    return;
+  }
 
   const id = idEl.value.trim();
   const pass = passEl.value;
+
+  console.log("input id:", id);
 
   if (!id || !pass) {
     if (msg) msg.textContent = "IDとパスワードを入力してね";
@@ -247,20 +257,33 @@ async function login() {
   }
 
   try {
-    const cred = await signInWithEmailAndPassword(auth, toFirebaseEmail(id), pass);
+    const email = toFirebaseEmail(id);
+    console.log("firebase email:", email);
+
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
+    console.log("login success uid:", cred.user.uid);
 
     localStorage.setItem("loggedIn", "true");
     setCurrentUser(id);
     setCurrentUid(cred.user.uid);
 
     await ensureCloudUser();
-    window.location.href = "dashboard.html";
+    console.log("ensureCloudUser done");
+
+    if (msg) msg.textContent = "ログイン成功、移動します";
+
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 300);
   } catch (e) {
     console.error("login error:", e);
 
     let text = "ログインに失敗しました";
 
     switch (e.code) {
+      case "auth/invalid-email":
+        text = "IDは test のように入力してください（@demo.local は不要）";
+        break;
       case "auth/invalid-credential":
         text = "IDまたはパスワードが違います";
         break;
@@ -281,7 +304,6 @@ async function login() {
     if (msg) msg.textContent = text;
   }
 }
-
 async function logout() {
   try {
     await signOut(auth);

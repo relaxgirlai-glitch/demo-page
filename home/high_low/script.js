@@ -26,11 +26,11 @@ const MAX_PLAYS_PER_DAY = 5;
 const MAX_BET = 1000;
 
 function canPlayToday() {
-  return getTodayPlays() < MAX_PLAYS_PER_DAY;
+  return window.getTodayPlays() < MAX_PLAYS_PER_DAY;
 }
 
 function incrementTodayPlays() {
-  incTodayPlays();
+  window.incTodayPlays();
 }
 
 let firstCard = 0;
@@ -136,14 +136,14 @@ startBtn.addEventListener("click", () => {
     return;
   }
 
-  const coins = getCoins();
+  const coins = window.getCoins();
   if (coins < v) {
     alert("コインが足りません！");
     return;
   }
 
-  setCoins(coins - v);
-  updateCoinDisplay();
+  window.setCoins(coins - v);
+  window.updateCoinDisplay();
 
   bet = v;
   hasStarted = true;
@@ -185,8 +185,8 @@ goBtn.addEventListener("click", () => {
 
   const payout = bet * mult;
   if (payout > 0) {
-    setCoins(getCoins() + payout);
-    updateCoinDisplay();
+    window.setCoins(window.getCoins() + payout);
+    window.updateCoinDisplay();
   }
 
   showResultMessage(mult);
@@ -205,7 +205,7 @@ backBtn.addEventListener("click", () => {
 });
 
 allBetBtn.addEventListener("click", () => {
-  const coins = getCoins();
+  const coins = window.getCoins();
   let betValue = Math.floor(coins / 10) * 10;
 
   if (betValue > MAX_BET) betValue = MAX_BET;

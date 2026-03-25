@@ -26,10 +26,10 @@ function showMsg(text) {
 
 function hasCore() {
   return (
-    typeof getUserData === "function" &&
-    typeof setUserData === "function" &&
-    typeof getCoins === "function" &&
-    typeof setCoins === "function"
+    typeof window.getUserData === "function" &&
+    typeof window.setUserData === "function" &&
+    typeof window.getCoins === "function" &&
+    typeof window.setCoins === "function"
   );
 }
 
@@ -39,18 +39,18 @@ function todayKey() {
 }
 
 function safeGetInventory() {
-  const d = getUserData();
+  const d = window.getUserData();
   if (!Array.isArray(d.inventory)) {
     d.inventory = [];
-    setUserData(d);
+    window.setUserData(d);
   }
   return d.inventory;
 }
 
 function safeSetInventory(inv) {
-  const d = getUserData();
+  const d = window.getUserData();
   d.inventory = inv;
-  setUserData(d);
+  window.setUserData(d);
 }
 
 function ownedCount(id) {
@@ -65,7 +65,7 @@ function getMaxOwn(id) {
 function resetDailyItemsIfNeeded() {
   if (!hasCore()) return;
 
-  const d = getUserData();
+  const d = window.getUserData();
   const today = todayKey();
 
   if (d.shopDay !== today) {
@@ -74,7 +74,7 @@ function resetDailyItemsIfNeeded() {
     if (!Array.isArray(d.inventory)) d.inventory = [];
     d.inventory = d.inventory.filter(x => x !== "game_plus");
 
-    setUserData(d);
+    window.setUserData(d);
   }
 }
 
@@ -165,24 +165,26 @@ function buy(productId, rowEl) {
       return;
     }
 
-    const coins = getCoins();
+    const coins = window.getCoins();
     if (coins < p.price) {
       showMsg("コインが足りません！");
       shakeRow();
       return;
     }
 
-    const before = getUserData();
+    const before = JSON.parse(JSON.stringify(window.getUserData()));
 
-    setCoins(coins - p.price);
-    if (typeof updateCoinDisplay === "function") updateCoinDisplay();
+    window.setCoins(coins - p.price);
+    if (typeof window.updateCoinDisplay === "function") {
+      window.updateCoinDisplay(true);
+    }
 
     const inv = safeGetInventory();
     inv.push(productId);
     safeSetInventory(inv);
 
     if (productId === "game_plus") {
-      const d = getUserData();
+      const d = window.getUserData();
 
       if (d.playDate !== todayKey()) {
         d.playDate = todayKey();
@@ -190,7 +192,7 @@ function buy(productId, rowEl) {
       }
 
       d.playCount = Math.max(0, Number(d.playCount || 0) - 1);
-      setUserData(d);
+      window.setUserData(d);
     }
 
     showMsg(`${p.name} を購入しました！`);
@@ -198,8 +200,10 @@ function buy(productId, rowEl) {
     if (typeof showNotice === "function") {
       showNotice(`${p.name} を購入しました。`, 3000, {
         undo: () => {
-          setUserData(before);
-          if (typeof updateCoinDisplay === "function") updateCoinDisplay();
+          window.setUserData(before);
+          if (typeof window.updateCoinDisplay === "function") {
+            window.updateCoinDisplay(true);
+          }
           renderShop();
         }
       });
@@ -225,9 +229,6 @@ let lastNoticeBaseMessage = "";
 let lastNoticeCount = 0;
 let noticeVersion = 0;
 
-// =========================
-// DOM生成
-// =========================
 function ensureNoticeBox() {
   if (document.getElementById("noticeBox")) return;
 
@@ -244,9 +245,6 @@ function ensureNoticeBox() {
   document.body.appendChild(box);
 }
 
-// =========================
-// 表示
-// =========================
 function showNotice(baseMessage, duration = 1000, options = {}) {
   ensureNoticeBox();
 
@@ -257,9 +255,6 @@ function showNotice(baseMessage, duration = 1000, options = {}) {
 
   if (!box || !text || !bar || !actions) return;
 
-  // =========================
-  // カウント処理
-  // =========================
   if (baseMessage === lastNoticeBaseMessage) {
     lastNoticeCount += 1;
   } else {
@@ -274,9 +269,6 @@ function showNotice(baseMessage, duration = 1000, options = {}) {
 
   text.textContent = displayMessage;
 
-  // =========================
-  // ボタン
-  // =========================
   actions.innerHTML = "";
 
   if (options.undo) {
@@ -292,22 +284,13 @@ function showNotice(baseMessage, duration = 1000, options = {}) {
     actions.appendChild(btn);
   }
 
-  // =========================
-  // タイマー制御
-  // =========================
   if (noticeTimer) clearTimeout(noticeTimer);
 
   const currentVersion = ++noticeVersion;
 
-  // =========================
-  // バー初期化
-  // =========================
   bar.style.transition = "none";
   bar.style.width = "100%";
 
-  // =========================
-  // ワープ → ヌルッ
-  // =========================
   box.classList.remove("show");
   box.style.transition = "none";
   box.style.opacity = "0";
@@ -329,16 +312,11 @@ function showNotice(baseMessage, duration = 1000, options = {}) {
     });
   });
 
-  // =========================
-  // 消える処理（修正版）
-  // =========================
   noticeTimer = setTimeout(() => {
     if (currentVersion !== noticeVersion) return;
 
-    // まず下にヌルッと消す
     box.classList.remove("show");
 
-    // アニメ後にバーリセット
     setTimeout(() => {
       if (currentVersion !== noticeVersion) return;
 
@@ -348,6 +326,6 @@ function showNotice(baseMessage, duration = 1000, options = {}) {
       lastNoticeBaseMessage = "";
       lastNoticeCount = 0;
       noticeTimer = null;
-    }, 250); // ← CSSのtransition時間に合わせる
+    }, 250);
   }, duration);
 }

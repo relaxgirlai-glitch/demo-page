@@ -267,14 +267,16 @@ async function login() {
     setCurrentUser(id);
     setCurrentUid(cred.user.uid);
 
-    await ensureCloudUser();
-    console.log("ensureCloudUser done");
+    try {
+      await ensureCloudUser();
+      console.log("ensureCloudUser done");
+    } catch (cloudErr) {
+      console.error("ensureCloudUser error:", cloudErr);
+    }
 
     if (msg) msg.textContent = "ログイン成功、移動します";
+    window.location.href = "dashboard.html";
 
-    setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 300);
   } catch (e) {
     console.error("login error:", e);
 

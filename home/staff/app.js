@@ -453,44 +453,50 @@ const add100Btn = document.getElementById("add100Btn");
 const add500Btn = document.getElementById("add500Btn");
 const add1000Btn = document.getElementById("add1000Btn");
 
-add100Btn.addEventListener("click", () => {
-  const before = getStaffData();
+if (add100Btn) {
+  add100Btn.addEventListener("click", () => {
+    const before = getStaffData();
 
-  setCoins(getCoins() + 100);
-  updateCoinDisplay();
+    setCoins(getCoins() + 100);
+    updateCoinDisplay();
 
-  showNotice("100Coinを追加しました。", 3000, {
-    undo: () => {
-      setStaffData(before);
-      updateCoinDisplay();
-    }
+    showNotice("100Coinを追加しました。", 3000, {
+      undo: () => {
+        setStaffData(before);
+        updateCoinDisplay();
+      }
+    });
   });
-});
+}
 
-add500Btn.addEventListener("click", () => {
-  const before = getStaffData();
+if (add500Btn) {
+  add500Btn.addEventListener("click", () => {
+    const before = getStaffData();
 
-  setCoins(getCoins() + 500);
-  updateCoinDisplay();
+    setCoins(getCoins() + 500);
+    updateCoinDisplay();
 
-  showNotice("500Coinを追加しました。", 3000, {
-    undo: () => {
-      setStaffData(before);
-      updateCoinDisplay();
-    }
+    showNotice("500Coinを追加しました。", 3000, {
+      undo: () => {
+        setStaffData(before);
+        updateCoinDisplay();
+      }
+    });
   });
-});
+}
 
-add1000Btn.addEventListener("click", () => {
-  const before = getStaffData();
+if (add1000Btn) {
+  add1000Btn.addEventListener("click", () => {
+    const before = getStaffData();
 
-  setCoins(getCoins() + 1000);
-  updateCoinDisplay();
+    setCoins(getCoins() + 1000);
+    updateCoinDisplay();
 
-  showNotice("1000Coinを追加しました。", 3000, {
-    undo: () => {
-      setStaffData(before);
-      updateCoinDisplay();
-    }
+    showNotice("1000Coinを追加しました。", 3000, {
+      undo: () => {
+        setStaffData(before);
+        updateCoinDisplay();
+      }
+    });
   });
-});
+}

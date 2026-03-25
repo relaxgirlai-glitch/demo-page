@@ -5,12 +5,13 @@
   <title>ホーム</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body onload="initDashboard()">
+
+<body>
 
   <div class="bonus-container">
     <h1 class="bonus-title">ログインボーナス</h1>
     <div id="bonusGrid" class="bonus-grid"></div>
-    <button id="claimBtn" onclick="claimBonus()">受け取る</button>
+    <button id="claimBtn">受け取る</button>
     <p id="status"></p>
   </div>
 
@@ -85,10 +86,43 @@
   </div>
 
   <div class="bonus-container">
-    <button class="logout" onclick="logout()">ログアウト</button>
+    <button class="logout" id="logoutBtn">ログアウト</button>
   </div>
 
+  <!-- JS -->
   <script type="module" src="./app.js"></script>
   <script src="../hedder/hedder.js"></script>
+
+  <script type="module">
+    window.addEventListener("load", () => {
+
+      // ダッシュボード初期化
+      if (typeof window.initDashboard === "function") {
+        window.initDashboard();
+      }
+
+      // ログインボーナス
+      const claimBtn = document.getElementById("claimBtn");
+      if (claimBtn) {
+        claimBtn.addEventListener("click", () => {
+          if (typeof window.claimBonus === "function") {
+            window.claimBonus();
+          }
+        });
+      }
+
+      // ログアウト
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (logoutBtn) {
+        logoutBtn.addEventListener("click", () => {
+          if (typeof window.logout === "function") {
+            window.logout();
+          }
+        });
+      }
+
+    });
+  </script>
+
 </body>
 </html>
